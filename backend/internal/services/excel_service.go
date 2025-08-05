@@ -36,7 +36,7 @@ func (s *ExcelService) getAllExcelColumns(f *excelize.File, sheetName string) []
 	
 	// If no data found, return standard Excel columns A-AK (first 37 columns)
 	if len(columns) == 0 {
-		for i := 1; i <= 37; i++ {
+		for i := 1; i <= 52; i++ {
 			colName, _ := excelize.ColumnNumberToName(i)
 			columns = append(columns, colName)
 		}

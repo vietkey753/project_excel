@@ -69,43 +69,50 @@ const MultiDataMerger: React.FC<MultiDataMergerProps> = ({
         result.results.slice(0, 3).forEach((row: any, rowIndex: number) => {
           const targetRow = startRow + rowIndex;
           
-          // Determine the value to use for preview - same logic as merge
+          // Determine the value to use for preview - based on operation type
           let valueToUse = row.calculated_value;
-          let foundTextValue = false;
           
-          console.log(`Preview processing row ${rowIndex}, originalData:`, row);
+          console.log(`Preview processing row ${rowIndex}, operation: ${result.operation}, originalData:`, row);
           
-          // First, look in source columns if specified
-          if (result.source_columns && result.source_columns.length > 0) {
-            const sourceColumns = result.source_columns || [];
-            sourceColumns.forEach((col: string) => {
-              if (row[col] !== undefined && row[col] !== null && row[col] !== 0 && row[col] !== '') {
-                if (typeof row[col] === 'string' && row[col].trim() !== '') {
-                  valueToUse = row[col];
-                  foundTextValue = true;
-                  console.log(`Preview found text in source column ${col}:`, row[col]);
-                } else if (typeof row[col] === 'number' && row[col] !== 0) {
-                  valueToUse = row[col];
-                  console.log(`Preview found number in source column ${col}:`, row[col]);
+          // For copy operation, prioritize text data from source columns
+          if (result.operation === 'copy') {
+            let foundTextValue = false;
+            
+            // First, look in source columns if specified
+            if (result.source_columns && result.source_columns.length > 0) {
+              const sourceColumns = result.source_columns || [];
+              sourceColumns.forEach((col: string) => {
+                if (row[col] !== undefined && row[col] !== null && row[col] !== 0 && row[col] !== '') {
+                  if (typeof row[col] === 'string' && row[col].trim() !== '') {
+                    valueToUse = row[col];
+                    foundTextValue = true;
+                    console.log(`Preview found text in source column ${col}:`, row[col]);
+                  } else if (typeof row[col] === 'number' && row[col] !== 0) {
+                    valueToUse = row[col];
+                    console.log(`Preview found number in source column ${col}:`, row[col]);
+                  }
                 }
-              }
-            });
-          }
-          
-          // If no source columns or no data found, search all fields
-          if (!foundTextValue && (typeof valueToUse === 'number' && valueToUse === 0)) {
-            Object.keys(row).forEach(key => {
-              if (key !== 'row_number' && key !== 'calculated_value' && row[key] !== undefined && row[key] !== null) {
-                if (typeof row[key] === 'string' && row[key].trim() !== '') {
-                  valueToUse = row[key];
-                  foundTextValue = true;
-                  console.log(`Preview found text in field ${key}:`, row[key]);
-                } else if (typeof row[key] === 'number' && row[key] !== 0) {
-                  valueToUse = row[key];
-                  console.log(`Preview found number in field ${key}:`, row[key]);
+              });
+            }
+            
+            // If no source columns or no data found, search all fields
+            if (!foundTextValue && (typeof valueToUse === 'number' && valueToUse === 0)) {
+              Object.keys(row).forEach(key => {
+                if (key !== 'row_number' && key !== 'calculated_value' && row[key] !== undefined && row[key] !== null) {
+                  if (typeof row[key] === 'string' && row[key].trim() !== '') {
+                    valueToUse = row[key];
+                    foundTextValue = true;
+                    console.log(`Preview found text in field ${key}:`, row[key]);
+                  } else if (typeof row[key] === 'number' && row[key] !== 0) {
+                    valueToUse = row[key];
+                    console.log(`Preview found number in field ${key}:`, row[key]);
+                  }
                 }
-              }
-            });
+              });
+            }
+          } else {
+            // For calculation operations (add, subtract, multiply, divide), use calculated_value
+            console.log(`Preview using calculated value for ${result.operation}:`, row.calculated_value);
           }
           
           console.log(`Preview: ${targetColumn}${targetRow} = ${valueToUse} (type: ${typeof valueToUse})`);
@@ -161,43 +168,50 @@ const MultiDataMerger: React.FC<MultiDataMergerProps> = ({
         calculatedData: result.results.map((row: any, rowIndex: number) => {
           const targetRow = startRow + rowIndex;
           
-          // Determine the value to use - check for text first, then calculated_value
+          // Determine the value to use - based on operation type
           let valueToUse = row.calculated_value;
-          let foundTextValue = false;
           
-          console.log(`Processing row ${rowIndex}, originalData:`, row);
+          console.log(`Processing row ${rowIndex}, operation: ${result.operation}, originalData:`, row);
           
-          // First, look in source columns if specified
-          if (result.source_columns && result.source_columns.length > 0) {
-            const sourceColumns = result.source_columns || [];
-            sourceColumns.forEach((col: string) => {
-              if (row[col] !== undefined && row[col] !== null && row[col] !== 0 && row[col] !== '') {
-                if (typeof row[col] === 'string' && row[col].trim() !== '') {
-                  valueToUse = row[col];
-                  foundTextValue = true;
-                  console.log(`Found text in source column ${col}:`, row[col]);
-                } else if (typeof row[col] === 'number' && row[col] !== 0) {
-                  valueToUse = row[col];
-                  console.log(`Found number in source column ${col}:`, row[col]);
+          // For copy operation, prioritize text data from source columns
+          if (result.operation === 'copy') {
+            let foundTextValue = false;
+            
+            // First, look in source columns if specified
+            if (result.source_columns && result.source_columns.length > 0) {
+              const sourceColumns = result.source_columns || [];
+              sourceColumns.forEach((col: string) => {
+                if (row[col] !== undefined && row[col] !== null && row[col] !== 0 && row[col] !== '') {
+                  if (typeof row[col] === 'string' && row[col].trim() !== '') {
+                    valueToUse = row[col];
+                    foundTextValue = true;
+                    console.log(`Found text in source column ${col}:`, row[col]);
+                  } else if (typeof row[col] === 'number' && row[col] !== 0) {
+                    valueToUse = row[col];
+                    console.log(`Found number in source column ${col}:`, row[col]);
+                  }
                 }
-              }
-            });
-          }
-          
-          // If no source columns or no data found, search all fields
-          if (!foundTextValue && (typeof valueToUse === 'number' && valueToUse === 0)) {
-            Object.keys(row).forEach(key => {
-              if (key !== 'row_number' && key !== 'calculated_value' && row[key] !== undefined && row[key] !== null) {
-                if (typeof row[key] === 'string' && row[key].trim() !== '') {
-                  valueToUse = row[key];
-                  foundTextValue = true;
-                  console.log(`Found text in field ${key}:`, row[key]);
-                } else if (typeof row[key] === 'number' && row[key] !== 0) {
-                  valueToUse = row[key];
-                  console.log(`Found number in field ${key}:`, row[key]);
+              });
+            }
+            
+            // If no source columns or no data found, search all fields
+            if (!foundTextValue && (typeof valueToUse === 'number' && valueToUse === 0)) {
+              Object.keys(row).forEach(key => {
+                if (key !== 'row_number' && key !== 'calculated_value' && row[key] !== undefined && row[key] !== null) {
+                  if (typeof row[key] === 'string' && row[key].trim() !== '') {
+                    valueToUse = row[key];
+                    foundTextValue = true;
+                    console.log(`Found text in field ${key}:`, row[key]);
+                  } else if (typeof row[key] === 'number' && row[key] !== 0) {
+                    valueToUse = row[key];
+                    console.log(`Found number in field ${key}:`, row[key]);
+                  }
                 }
-              }
-            });
+              });
+            }
+          } else {
+            // For calculation operations (add, subtract, multiply, divide), use calculated_value
+            console.log(`Using calculated value for ${result.operation}:`, row.calculated_value);
           }
           
           console.log(`  Row ${rowIndex}: sourceRow=${row.row_number}, targetRow=${targetRow}, value=${valueToUse} (type: ${typeof valueToUse})`);

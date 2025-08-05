@@ -236,6 +236,7 @@ const MultiColumnCalculator: React.FC<MultiColumnCalculatorProps> = ({
         <Col span={10}>
           <Text strong>Cột đích:</Text>
           <Select
+            mode="multiple"
             placeholder="Chọn cột để ghi kết quả"
             style={{ width: '100%', marginTop: 8 }}
             value={col.targetColumn}
